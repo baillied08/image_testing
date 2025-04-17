@@ -14,6 +14,10 @@ jobs:
     # checks-out your repository under $GitHub_WORKSPACE, so your workflow can access it.
     - name: Checkout
       uses: actions/checkout@v2
+
+    # Build your docker image, that is going to be scanned in the next step
+    - name: Docker Image Build
+      run: docker build -t $IMAGE_NAME .
   
     # Run Orca CLI against the previously created container image
     - name: Orca CLI - Security Scanning
