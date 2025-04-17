@@ -33,21 +33,58 @@ jobs:
         curl -sfL 'https://raw.GitHubusercontent.com/orcasecurity/orca-cli/main/install.sh' | bash
         orca-cli -p "${PROJECT_KEY}" image scan ${IMAGE_NAME} --output orca-scan-summary.json --format json
 
-        - name: Comment on PR with Orca JSON results (summary only)
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const json = JSON.parse(fs.readFileSync('orca-scan-results.json', 'utf8'));
-            const summary = json.vulnerabilities?.slice(0, 10).map(vuln =>
-              `- [${vuln.severity}] ${vuln.title}: ${vuln.description?.slice(0, 100)}...`
-            ).join('\n');
-      
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `🛡️ **Orca Security Scan Summary:**\n\n${summary || '✅ No high/critical issues found.'}`
-            });
+    - name: Comment on PR with Orca Scan Summary
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const scan = JSON.parse(fs.readFileSync('orca-scan-results.json', 'utf8'));
+    
+          const controls = scan.controls_count;
+          const vulns = scan.vulnerabilities_count;
+          const policies = scan.policies_summary;
+    
+          const failedPolicies = policies
+            .filter(p => p.failed)
+            .map(p => `- ❌ **${p.policy_name}**`)
+            .join('\n') || '✅ No failed policies';
+    
+          const summary = `
+          🛡️ **Orca Security Scan Summary**
+          
+          🔗 [View full results in Orca Security Console](${scan.results_url})
+          
+          **Controls**
+          - ✅ Passed: ${controls.passed}
+          - ⚠️ Warnings: ${controls.warning}
+          - ❌ Failed: ${controls.failed}
+          
+          **Vulnerabilities**
+          - 🟥 Critical: ${vulns.critical}
+          - 🟧 High: ${vulns.high}
+          - 🟨 Medium: ${vulns.medium}
+          - 🟦 Low: ${vulns.low}
+          - ❓ Unknown: ${vulns.unknown}
+          
+          **Failed Policies**
+          ${failedPolicies}
+          `;
+    
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: summary
+          });
+
+
+
+
+
+
+
+
+
+
   
