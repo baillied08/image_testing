@@ -31,7 +31,7 @@ jobs:
         set +e
         sudo apt update && sudo apt install -y curl
         curl -sfL 'https://raw.GitHubusercontent.com/orcasecurity/orca-cli/main/install.sh' | bash
-        orca-cli -p "${PROJECT_KEY}" image scan ${IMAGE_NAME} --console_output table > orca-scan-summary.txt
+        orca-cli -p "${PROJECT_KEY}" image scan ${IMAGE_NAME} --output orca-scan-summary.txt
         
     - name: Comment on PR with results
       if: github.event_name == 'pull_request'
