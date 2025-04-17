@@ -39,7 +39,7 @@ jobs:
       with:
         script: |
           const fs = require('fs');
-          const scan = JSON.parse(fs.readFileSync('orca-scan-results.json', 'utf8'));
+          const scan = JSON.parse(fs.readFileSync('orca-scan-summary.json', 'utf8'));
     
           const controls = scan.controls_count;
           const vulns = scan.vulnerabilities_count;
