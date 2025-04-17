@@ -21,7 +21,7 @@ jobs:
 
     # Build your docker image, that is going to be scanned in the next step
     - name: Docker Image Build
-      run: docker build -t ./postgres.dockerfile .
+      run: docker build -t -f ./postgres.dockerfile .
   
     # Run Orca CLI against the previously created container image
     - name: Orca CLI - Security Scanning
